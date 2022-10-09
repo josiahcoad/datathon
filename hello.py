@@ -7,7 +7,7 @@ import cv2
 import matplotlib.pyplot as plt
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(frozen=True)
 class TileEdges:
     top: List[int]
     bottom: List[int]
@@ -15,7 +15,7 @@ class TileEdges:
     left: List[int]
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(frozen=True)
 class TiledImage:
     top_left: List[List[int]]
     top_right: List[List[int]]
