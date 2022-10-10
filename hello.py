@@ -154,28 +154,38 @@ def show_results(img):
     third_best = arrangement_sims[2][0]
     fourth_best = arrangement_sims[3][0]
 
-    first_stitched = stitch_tiles(tiles[list(best_arrangement)])
-    second_stitched = stitch_tiles(tiles[list(second_best)])
-    third_stitched = stitch_tiles(tiles[list(third_best)])
-    fourth_stitched = stitch_tiles(tiles[list(fourth_best)])
+    first = stitch_tiles(tiles[list(best_arrangement)])
+    second = stitch_tiles(tiles[list(second_best)])
+    third = stitch_tiles(tiles[list(third_best)])
+    fourth = stitch_tiles(tiles[list(fourth_best)])
 
-    f, axarr = plt.subplots(2,2)
-    axarr[0,0].imshow(first_stitched)
-    axarr[0,1].imshow(second_stitched)
-    axarr[1,0].imshow(third_stitched)
-    axarr[1,1].imshow(fourth_stitched)
-    st.pyplot(fig=f)
+    color_first = stitch_tiles(color_tiles[list(best_arrangement)])
+    color_second = stitch_tiles(color_tiles[list(second_best)])
+    color_third = stitch_tiles(color_tiles[list(third_best)])
+    color_fourth = stitch_tiles(color_tiles[list(fourth_best)])
+    
+    f, axarr = plt.subplots(4,2)
 
-    first_stitched = stitch_tiles(color_tiles[list(best_arrangement)])
-    second_stitched = stitch_tiles(color_tiles[list(second_best)])
-    third_stitched = stitch_tiles(color_tiles[list(third_best)])
-    fourth_stitched = stitch_tiles(color_tiles[list(fourth_best)])
+    axarr[0,0].set_title(f'First Guess', fontsize=10)
+    axarr[0,0].imshow(color_first)
+    axarr[1,0].set_title(f'Second Guess', fontsize=10)
+    axarr[1,0].imshow(color_second)
+    axarr[2,0].set_title(f'Third Guess', fontsize=10)
+    axarr[2,0].imshow(color_third)
+    axarr[3,0].set_title(f'Fourth Guess', fontsize=10)
+    axarr[3,0].imshow(color_fourth)
 
-    f, axarr = plt.subplots(2,2)
-    axarr[0,0].imshow(first_stitched)
-    axarr[0,1].imshow(second_stitched)
-    axarr[1,0].imshow(third_stitched)
-    axarr[1,1].imshow(fourth_stitched)
+    axarr[0,1].imshow(first)
+    axarr[1,1].imshow(second)
+    axarr[2,1].imshow(third)
+    axarr[3,1].imshow(fourth)
+
+    for i in range(4):
+        for j in range(2):
+            axarr[i, j].set_xticks([])
+            axarr[i, j].set_yticks([])
+
+    f.tight_layout()
     st.pyplot(fig=f)
 
 # %%
@@ -196,15 +206,32 @@ def show_results(img):
 import streamlit as st
 from PIL import Image 
 
-image_file = st.file_uploader('upload scrambled image')
+image_files = [ 'scrambled.png', 'scrambled2.png', 'scrambled3.png', 'scrambled4.png']
+
 
 def load_image_file(image_file):
 	img = Image.open(image_file)
 	return img
 
-if image_file:
-    img = load_image_file(image_file)
-    st.image(img)
+st.title('Image DeScRaMbLeR! 🤪')
+with st.expander('How it works'):
+    st.text('''1. Split the image into four tiles
+2. Remove noise from by blurring a bit
+3. Apply edge detection (output is matrix of 1's and 0's, 1 if pixel is edge)
+4. Extract the border pixels from each tile (an array of 1s and 0s)
+5. For each of the 24 (4!) possible arrangements...
+6. - compare the neighboring borders of each tile
+7. - Get "border similiarity" which we calculate as
+     the number of pairwise pixels which are both 1
+8. Sort the possible arrangements by total border similarity''')
 
-    img_arr = np.array(img)
-    show_results(img_arr)
+cols = st.columns(4)
+
+selection = st.selectbox('Select Picture To Descramble', options=[1,2,3,4])
+
+for i in range(4):
+    cols[i].image(load_image_file(image_files[i]), f'Image {i+1}')
+
+img = load_image_file(image_files[selection-1])
+img_arr = np.array(img)
+show_results(img_arr)
